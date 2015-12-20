@@ -1,0 +1,349 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
+<title>Polymer Iconset Generator</title>
+<!-- <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js" async></script> -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,300|Roboto+Mono|Product+Sans">
+<link rel="import" href="elements/elements.html">
+<style is="custom-style">
+  html, body {
+    margin: 0;
+    height: 100%;
+  }
+  body {
+    @apply(--paper-font-body1);
+  }
+
+  iron-selector {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 90vw;
+    margin: 0 auto;
+    padding: 16px 0 32px 0;
+  }
+
+  /*paper-header-panel paper-button {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    background: var(--google-blue-700);
+  }*/
+
+  /*paper-button iron-icon {
+    margin-left: 8px;
+  }*/
+
+  paper-toolbar {
+    background-color: var(--paper-blue-grey-600);
+  }
+
+  paper-toolbar h2 {
+    margin-right: 40px;
+    font-weight: inherit;
+    /*flex: 1;*/
+    font-family: 'Product Sans', Arial, sans-serif;
+  }
+
+  a {
+    text-decoration: none;
+    color: currentcolor;
+  }
+
+  paper-input {
+    --paper-input-container-input-color: #fff;
+    --paper-input-container-color: rgba(255,255,255,0.6);
+    --paper-input-container-focus-color: #fff;
+  }
+
+  paper-toolbar paper-input,
+  paper-toolbar paper-button {
+    margin: 0 16px 0 0;
+  }
+
+  paper-toggle-button {
+    --paper-toggle-button-label-color: #fff;
+    --paper-toggle-button-checked-button-color: var(--paper-blue-grey-900);
+    --paper-toggle-button-checked-bar-color: var(--paper-blue-grey-900);
+  }
+
+  .container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0.5em;
+    border-radius: 5px;
+    border: 3px solid transparent;
+    cursor: pointer;
+  }
+
+  .container iron-icon {
+    fill: var(--paper-blue-grey-500);
+    padding: 16px;
+  }
+
+  .container:hover iron-icon {
+    fill: var(--paper-blue-grey-800);
+  }
+
+  .container.iron-selected iron-icon {
+    fill: var(--paper-pink-500);
+  }
+
+  .container:hover {
+    border: 3px solid var(--paper-blue-grey-50);
+  }
+
+  footer {
+    position: fixed;
+    background-color: var(--paper-blue-grey-900);
+    color: #fff;
+    height: 33vh;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
+
+  footer .buttons {
+    display: flex;
+    justify-content: flex-end;
+    flex: 1;
+    color: #fff;
+    --paper-icon-button-ink-color: #fff;
+  }
+
+  #out {
+    border: none;
+    font: inherit;
+    font-family: "Roboto Mono", courier;
+    margin: 0;
+    padding: 0 16px;
+    overflow: auto;
+    position: relative;
+    height: 100%;
+  }
+
+  #out::before {
+    position: absolute;
+    display: block;
+    font-family: "Roboto", sans-serif;
+    text-transform: uppercase;
+    content: 'Generated markup';
+    right: 16px;
+    top: 16px;
+    color: rgba(255,255,255,0.3);
+    font-size: 16px;
+  }
+
+  #out::selection {
+    background-color: var(--paper-blue-grey-50);
+  }
+
+  paper-toast {
+    /*--paper-toast-background-color: #fff;*/
+    /*--paper-toast-color: #313131;*/
+    bottom: calc(26vh + 56px);
+  }
+</style>
+</head>
+<body>
+
+<template is="dom-bind" id="t">
+
+  <iron-meta type="iconset" list="{{iconsets}}"></iron-meta>
+
+  <paper-header-panel mode="waterfall">
+    <paper-toolbar>
+      <h2><a href="/">Polymer Iconset Generator</a></h2>
+    </paper-toolbar>
+    <div>
+      <iron-selector id="selector" multi attr-for-selected="data-icon">
+        <template is="dom-repeat" items="[[iconsets]]" as="set">
+          <!-- <h2>[[item.name]]</h2> -->
+
+          <template is="dom-repeat" items="[[getIconNames(set)]]">
+            <span class="container" on-click="generateMarkup" data-icon$="[[item]]">
+              <iron-icon icon="[[item]]" title="[[item]]"></iron-icon>
+              <!-- <div>{{item}}</div> -->
+            </span>
+          </template>
+        </template>
+      </iron-selector>
+    </div>
+  </paper-header-panel>
+
+  <footer>
+    <paper-toolbar>
+      <paper-input id="setname" label="Iconset name" value="myicons"
+                   on-change="generateMarkup"></paper-input>
+      <paper-input id="size" type="number" label="Icon size (px)"
+                   value="24" min="8" on-change="generateMarkup"></paper-input>
+      <paper-toggle-button id="newlines" on-tap="generateMarkup" checked>Format HTML?</paper-toggle-button>
+      <!-- <paper-button raised on-tap="generateMarkup">Generate <iron-icon icon="arrow-forward"></iron-icon></paper-button> -->
+      <div class="buttons">
+      <paper-icon-button icon="icons:select-all" title="Select all"
+          on-tap="selectText"></paper-icon-button>
+      <paper-icon-button icon="icons:content-copy" title="Copy to clipboard"
+          on-tap="copyText"></paper-icon-button>
+    </div>
+    </paper-toolbar>
+    <pre id="out">[[markup]]</pre>
+  </footer>
+
+  <paper-toast id="toast" text="Markup copied"></paper-toast>
+
+</template>
+
+<template is="dom-template" id="tmpl">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+
+<iron-iconset-svg name$="[[iconset.name]]" size$="[[iconset.size]]">
+  <svg><defs inner-h-t-m-l="[[html]]"></defs></svg>
+</iron-iconset-svg>
+</template>
+
+<script>
+(function() {
+
+  function lazyLoadPolyfills() {
+    var webComponentsSupported = ('registerElement' in document
+      && 'import' in document.createElement('link')
+      && 'content' in document.createElement('template'));
+
+    if (!webComponentsSupported) {
+      var script = document.createElement('script');
+      script.async = true;
+      script.src = '/bower_components/webcomponentsjs/webcomponents-lite.min.js';
+      //script.onload = finishLazyLoading;
+      document.head.appendChild(script);
+    }
+  }
+
+  // Dynamically load elements bundle.
+  // var l = document.createElement('link');
+  // l.rel = 'import';
+  // l.href = window.location.hostname == 'localhost' ?
+  //              'elements/elements.html' : 'dist/elements/elements.html';
+  // //l.setAttribute('async', '');
+  // l.onload = lazyLoadPolyfills;
+  // document.head.appendChild(l);
+  lazyLoadPolyfills();
+
+  var t = document.querySelector('#t');
+
+  t.getIconNames = function(iconset) {
+    return iconset.getIconNames();
+  };
+
+  t.copyText = function(e, detail) {
+    this.selectText();
+
+    try {
+      this.$.toast.text = 'Markup copied to clipboard';
+      var successful = document.execCommand('copy');
+    } catch (e) {
+      this.$.toast.text = 'Your browser does not support copy-to-clipboard';
+      console.error('execCommand error', e);
+    }
+    this.$.toast.show();
+    window.getSelection().removeAllRanges();
+  };
+
+  t.selectText = function(e, detail) {
+    if (window.getSelection && document.createRange) {
+      var range = document.createRange();
+      // range.selectNodeContents(this.$.out);
+      range.selectNode(this.$.out);
+
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  };
+
+  t.reconstructFromURL = function() {
+    if (!!!window.URLSearchParams) {
+      return;
+    }
+
+    var params = new URLSearchParams(window.location.search.slice(1));
+    this.$.setname.value = params.get('name') || this.$.setname.value;
+    this.$.size.value = params.get('size') || this.$.size.value;
+    this.$.selector.selectedValues = params.getAll('icon');
+
+    if (Array.from(params).length) {
+      this.generateMarkup();
+    }
+  };
+
+  t.updateURL = function() {
+    if (!!!window.URLSearchParams) {
+      return;
+    }
+
+    var params = new URLSearchParams(window.location.search.slice(1));
+
+    params.delete('icon'); // delete all icon params
+    for (var p of this.$.selector.selectedValues) {
+      params.append('icon', p);
+    }
+
+    params.set('name', this.$.setname.value);
+    params.set('size', this.$.size.value);
+
+    window.history.replaceState({}, '', '/?' + params);
+  };
+
+  t.generateMarkup = function() {
+    this.debounce('generateMarkup', function() {
+
+      var selectedIcons = this.$.selector.selectedValues || [];
+      var db = document.querySelector('iron-meta'); // Polymer.IronMeta.getIronMeta()
+
+      // Retrieve svg markup for each icon.
+      var icons = selectedIcons.sort().map(function(icon) {
+        var parts = icon.split(':');
+        return db.byKey(parts[0])._icons[parts[1]].outerHTML;
+      }.bind(this.$.selector));
+
+      var optionalNewline = this.$.newlines.checked ? '\n' : '';
+
+      var html = optionalNewline + icons.reduce(function(prev, curr, idx) {
+        return prev + optionalNewline + curr;
+      }, '').trim() + optionalNewline;
+
+      var iconset = document.createElement('iron-iconset-svg');
+      iconset.name = this.$.setname.value;
+      iconset.size = this.$.size.value;
+
+      var template = document.querySelector('#tmpl');
+      var instance = template.stamp({
+        name: iconset.name,
+        size: iconset.size,
+        iconset: iconset,
+        html: html
+      });
+
+      var div = document.createElement('div');
+      div.appendChild(instance.root);
+
+      var out = document.querySelector('#out');
+      this.markup = div.innerHTML;
+
+      this.updateURL();
+    }, 100);
+  }
+
+  t.addEventListener('dom-change', function(e) {
+    t.reconstructFromURL();
+  });
+})();
+</script>
+</body>
+</html>
