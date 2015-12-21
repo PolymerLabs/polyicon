@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
 This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
 The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
 The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
@@ -12,19 +12,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 let del = require('del');
 let gulp = require('gulp');
 let $ = require('gulp-load-plugins')();
-// let crisper = require('gulp-crisper');
-// let license = require('gulp-license');
-// let vulcanize = require('gulp-vulcanize');
-let polybuild = require('polybuild');
+let polyBuild = require('polybuild');
 let merge = require('merge-stream');
 let runSequence = require('run-sequence');
 
-function minifyHtml() {
-  return $.minifyHtml({quotes: true, empty: true, spare: true});
-}
+// function minifyHtml() {
+//   return $.minifyHtml({quotes: true, empty: true, spare: true});
+// }
 
-function uglifyJS() {
-  return $.uglify({preserveComments: 'some'});
+// function uglifyJS() {
+//   return $.uglify({preserveComments: 'some'});
+// }
+
+function polybuild() {
+  return polyBuild({maximumCrush: true, suffix: ''});
 }
 
 function license() {
@@ -39,17 +40,21 @@ gulp.task('clean', function() {
 });
 
 gulp.task('copy', function() {
-  let docs = gulp.src([
-      '*.html'
-     ], {base: '.'})
+  let docs = gulp.src(['*.html'], {base: '.'})
+    .pipe(gulp.dest('dist'));
+
+  let gae = gulp.src([
+      //'{templates,lib,tests}/**/*'
+      'app.yaml'
+    ])
     .pipe(gulp.dest('dist'));
 
   let bower = gulp.src([
-    'bower_components/webcomponentsjs/webcomponents-lite*.js'
+      'bower_components/webcomponentsjs/webcomponents-lite*.js'
     ], {base: '.'})
     .pipe(gulp.dest('dist'));
 
-  return merge(docs, bower);
+  return merge(docs, gae, bower);
 });
 
 gulp.task('vulcanize', function() {
@@ -62,16 +67,11 @@ gulp.task('vulcanize', function() {
     // .pipe($.crisper({scriptInHead: true}))
     // .pipe($.if('*.html', minifyHtml())) // Minify html output
     // .pipe($.if('*.js', uglifyJS())) // Minify js output
-    .pipe(polybuild({
-      maximumCrush: true,
-      suffix: ''
-    }))
+    .pipe(polybuild())
     .pipe($.if('*.js', license()))
     .pipe(gulp.dest('dist/elements'));
 });
 
 gulp.task('default', ['clean'], function(done) {
-  runSequence(
-    ['vulcanize', 'copy'],
-    done);
+  runSequence(['vulcanize', 'copy'], done);
 });

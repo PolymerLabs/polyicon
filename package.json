@@ -6,6 +6,10 @@
   "bin": {
     "polyicon": "bin/polyicon"
   },
+  "scripts": {
+    "postinstall": "bower install; gulp",
+    "deploy": "scripts/deploy.sh"
+  },
   "author": "The Polymer Authors",
   "license": "BSD-3-Clause",
   "dependencies": {
