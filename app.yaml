@@ -6,24 +6,23 @@ handlers:
 
 - url: /$
   static_files: index.html
-  upload: index.html
+  upload: index\.html
   secure: always
 
-- url: /(.*)
-  static_files: dist/\1
-  upload: (.*)
+- url: /(.*).(html|js|json|css)
+  static_files: \1.\2
+  upload: (.*)\.(html|js|json|css)
   secure: always
 
 skip_files:
-  - ^(.*/)?
+  - ^(.*/)?#.*#$
   - ^(.*/)?.*~$
   - ^(.*/)?.*\.py[co]$
-  - ^(.*/)?.*\.md$
   - ^(.*/)?.*/RCS/.*$
   - ^(.*/)?\..*$
   - gulpfile.js
+  - (package|bower).json
   - test*
+  - node_modules/(.*)
   - bower_components/[^/]+/bower_components/.*$
   - bower_components/(.+/)+(test/|demo/|README|AUTHORS|CONTRIBUTING|PATENTS|Makefile)
-  - node_modules*
-  - bower.json

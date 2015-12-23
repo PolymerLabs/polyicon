@@ -19,9 +19,9 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    max-width: 90vw;
+    /*max-width: 95vw;*/
     margin: 0 auto;
-    padding: 16px 0 32px 0;
+    padding: 8px 0 40px 0; /*16px 16px 32px 16px*/
   }
 
   paper-toolbar {
@@ -83,6 +83,18 @@
     border: 3px solid var(--paper-blue-grey-50);
   }
 
+  /*.iconsetname {
+    @apply(--paper-font-body1);
+    text-transform: uppercase;
+    font-size: 16px;
+    position: absolute;
+    left: 6px;
+  }
+
+  .iconsetname::before {
+    content: attr(title);
+  }*/
+
   footer {
     position: fixed;
     background-color: var(--paper-blue-grey-900);
@@ -136,6 +148,12 @@
     /*--paper-toast-color: #313131;*/
     bottom: calc(26vh + 56px);
   }
+
+  @media all and (max-width: 450px) {
+    #newlines {
+      display: none;
+    }
+  }
 </style>
 </head>
 <body>
@@ -147,11 +165,13 @@
   <paper-header-panel mode="waterfall">
     <paper-toolbar>
       <h2><a href="/">Polymer Iconset Generator</a></h2>
+      <!-- <paper-icon-button icon="icons:select-all" title="Toggle all icons"
+          on-transitionend="toggleAllIcons"></paper-icon-button> -->
     </paper-toolbar>
     <div>
       <iron-selector id="selector" multi attr-for-selected="data-icon">
         <template is="dom-repeat" items="[[iconsets]]" as="set">
-          <!-- <h2>[[item.name]]</h2> -->
+          <!-- <h3 class="iconsetname" title$="[[set.name]]"></h3> -->
 
           <template is="dom-repeat" items="[[getIconNames(set)]]">
             <span class="container" on-click="generateMarkup" data-icon$="[[item]]">
@@ -191,7 +211,7 @@
 <link rel="import" href="../bower_components/iron-iconset-svg/iron-iconset-svg.html">
 
 <iron-iconset-svg name$="[[iconset.name]]" size$="[[iconset.size]]">
-  <svg><defs inner-h-t-m-l="[[html]]"></defs></svg>
+<svg><defs inner-h-t-m-l="[[html]]"></defs></svg>
 </iron-iconset-svg>
 </template>
 
@@ -226,6 +246,16 @@
 
   t.getIconNames = function(iconset) {
     return iconset.getIconNames();
+  };
+
+  t.toggleAllIcons = function() {
+    this.$.selector.selectedValues = [];
+
+    var icons = [];
+    this.iconsets.forEach(iconset => {
+      icons.push(...iconset.getIconNames());
+    });
+    this.$.selector.selectedValues = icons;
   };
 
   t.copyText = function(e, detail) {

@@ -8,7 +8,9 @@
   },
   "scripts": {
     "postinstall": "bower install; gulp",
-    "deploy": "scripts/deploy.sh"
+    "deploy": "scripts/deploy.sh",
+    "serve": "dev_appserver.py app.yaml",
+    "serve:dist": "dev_appserver.py dist/app.yaml"
   },
   "author": "The Polymer Authors",
   "license": "BSD-3-Clause",
