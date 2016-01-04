@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
-<title>Polymer Iconset Generator</title>
+<title>Polymer Custom Iconset Generator</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Product+Sans">
 <link rel="import" href="elements/elements.html">
 <style is="custom-style">
@@ -125,6 +125,7 @@
 
   footer .buttons {
     margin-left: 32px;
+    display: flex;
     flex: 1;
   }
 
@@ -177,6 +178,10 @@
     bottom: 40vh
   }
 
+  .warning {
+    padding: 1em;
+  }
+
   @media all and (max-width: 450px) {
     #newlines {
       display: none;
@@ -185,6 +190,8 @@
 </style>
 </head>
 <body>
+
+<div class="warning">Not working? Try a browser with newer ES6 features.</div>
 
 <template is="dom-bind" id="t">
 
@@ -405,6 +412,9 @@
 
   t.addEventListener('dom-change', function(e) {
     t.reconstructFromURL();
+
+    // If this event fires hide warning message.
+    document.querySelector('.warning').style.display = 'none';
   });
 })();
 
