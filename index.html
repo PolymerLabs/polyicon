@@ -21,15 +21,20 @@
     justify-content: center;
     /*max-width: 95vw;*/
     margin: 0 auto;
-    padding: 8px 0 80px 0; /*16px 16px 32px 16px*/
+    padding: 8px 0 40px 0; /*16px 16px 32px 16px*/
+    margin-bottom: 38vh;
   }
 
   paper-toolbar {
     background-color: var(--paper-blue-grey-600);
   }
 
+  paper-toolbar.top {
+    --paper-toolbar-height: 50px;
+  }
+
   paper-toolbar h2 {
-    margin-right: 40px;
+    /*margin-right: 40px;*/
     font-weight: inherit;
     font-family: 'Product Sans', Arial, sans-serif;
   }
@@ -73,7 +78,7 @@
 
   .container iron-icon {
     fill: var(--paper-blue-grey-500);
-    padding: 16px;
+    padding: 8px;
   }
 
   .container:hover iron-icon {
@@ -109,7 +114,7 @@
     position: fixed;
     background-color: var(--paper-blue-grey-900);
     color: #fff;
-    height: 33vh;
+    height: 40vh;
     left: 0;
     bottom: 0;
     width: 100%;
@@ -126,7 +131,7 @@
     --paper-icon-button-ink-color: #fff;
   }
 
-  #out {
+  .out {
     border: none;
     font: inherit;
     font-family: "Roboto Mono", courier;
@@ -137,7 +142,7 @@
     height: 100%;
   }
 
-  #out::before {
+  .out::before {
     position: absolute;
     display: block;
     font-family: "Roboto", sans-serif;
@@ -149,14 +154,26 @@
     font-size: 16px;
   }
 
-  #out::selection {
+  #markup::selection {
     background-color: var(--paper-blue-grey-50);
+  }
+
+  #example {
+    display: flex;
+    align-items: center;
+    border-bottom: 3px solid var(--paper-blue-grey-600);
+    height: 75px;
+    flex-shrink: 0;
+  }
+
+  #example::before {
+    content: 'Example usage';
   }
 
   paper-toast {
     /*--paper-toast-background-color: #fff;*/
     /*--paper-toast-color: #313131;*/
-    bottom: calc(26vh + 56px);
+    bottom: 40vh
   }
 
   @media all and (max-width: 450px) {
@@ -173,7 +190,7 @@
   <iron-meta type="iconset" list="{{iconsets}}"></iron-meta>
 
   <paper-header-panel mode="waterfall">
-    <paper-toolbar>
+    <paper-toolbar class="top">
       <h2><a href="/">Polymer Iconset Generator</a></h2>
       <!-- <paper-icon-button icon="icons:select-all" title="Toggle all icons"
           on-transitionend="toggleAllIcons"></paper-icon-button> -->
@@ -196,7 +213,7 @@
 
   <footer>
     <paper-toolbar>
-      <paper-input id="setname" label="Iconset name" value="myicons"
+      <paper-input id="setname" label="Iconset name" value="{{iconsetName}}"
                    on-change="generateMarkup"></paper-input>
       <paper-input id="size" type="number" label="Icon size (px)"
                    value="24" min="8" on-change="generateMarkup"></paper-input>
@@ -209,7 +226,8 @@
             on-tap="copyText"></paper-icon-button>
       </div>
     </paper-toolbar>
-    <pre id="out">[[markup]]</pre>
+    <pre id="example" class="out">[[_computeExampleImport(iconsetName)]]</pre>
+    <pre id="markup" class="out">[[markup]]</pre>
   </footer>
 
   <paper-toast id="toast" text="Markup copied"></paper-toast>
@@ -262,6 +280,11 @@
     return fullName.split(':')[1];
   };
 
+  t._computeExampleImport = function(iconsetName) {
+    return `<link rel="import" href="/path/to/${iconsetName}.html">
+<iron-icon icon="${iconsetName}:ICON_NAME"></iron-icon>`;
+  };
+
   t.toggleAllIcons = function() {
     this.$.selector.selectedValues = [];
 
@@ -290,7 +313,7 @@
     if (window.getSelection && document.createRange) {
       var range = document.createRange();
       // range.selectNodeContents(this.$.out);
-      range.selectNode(this.$.out);
+      range.selectNode(this.$.markup);
 
       var sel = window.getSelection();
       sel.removeAllRanges();
@@ -304,7 +327,7 @@
     }
 
     var params = new URLSearchParams(window.location.search.slice(1));
-    this.$.setname.value = params.get('name') || this.$.setname.value;
+    this.iconsetName = params.get('name') || 'myicons';
     this.$.size.value = params.get('size') || this.$.size.value;
     this.$.selector.selectedValues = params.getAll('icon');
 
@@ -325,7 +348,7 @@
       params.append('icon', p);
     }
 
-    params.set('name', this.$.setname.value);
+    params.set('name', this.iconsetName);
     params.set('size', this.$.size.value);
 
     window.history.replaceState({}, '', '/?' + params);
@@ -350,7 +373,7 @@
       }, '').trim() + optionalNewline;
 
       var iconset = document.createElement('iron-iconset-svg');
-      iconset.name = this.$.setname.value;
+      iconset.name = this.iconsetName;
       iconset.size = this.$.size.value;
 
       var template = document.querySelector('#tmpl');
@@ -364,12 +387,12 @@
       var div = document.createElement('div');
       div.appendChild(instance.root);
 
-      var out = document.querySelector('#out');
+      // var out = document.querySelector('#out');
       this.markup = div.innerHTML;
 
       this.updateURL();
     }, 100);
-  }
+  };
 
   t.addEventListener('dom-change', function(e) {
     t.reconstructFromURL();
