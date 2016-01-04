@@ -21,7 +21,7 @@
     justify-content: center;
     /*max-width: 95vw;*/
     margin: 0 auto;
-    padding: 8px 0 40px 0; /*16px 16px 32px 16px*/
+    padding: 8px 0 80px 0; /*16px 16px 32px 16px*/
   }
 
   paper-toolbar {
@@ -58,12 +58,17 @@
 
   .container {
     display: flex;
+    align-items: center;
     justify-content: center;
     flex-direction: column;
     padding: 0.5em;
     border-radius: 5px;
     border: 3px solid transparent;
     cursor: pointer;
+    width: 90px;
+     text-overflow: ellipsis;
+     overflow: hidden;
+    white-space: nowrap;
   }
 
   .container iron-icon {
@@ -81,6 +86,11 @@
 
   .container:hover {
     border: 3px solid var(--paper-blue-grey-50);
+  }
+
+  .container .icon_name {
+    color: var(--paper-blue-grey-300);
+    font-size: 10px;
   }
 
   /*.iconsetname {
@@ -176,7 +186,7 @@
           <template is="dom-repeat" items="[[getIconNames(set)]]">
             <span class="container" on-click="generateMarkup" data-icon$="[[item]]">
               <iron-icon icon="[[item]]" title="[[item]]"></iron-icon>
-              <!-- <div>{{item}}</div> -->
+              <div class="icon_name">{{iconName(item)}}</div>
             </span>
           </template>
         </template>
@@ -193,11 +203,11 @@
       <paper-toggle-button id="newlines" on-tap="generateMarkup" checked>Format HTML?</paper-toggle-button>
       <!-- <paper-button raised on-tap="generateMarkup">Generate <iron-icon icon="arrow-forward"></iron-icon></paper-button> -->
       <div class="buttons">
-      <paper-icon-button icon="icons:select-all" title="Select all"
-          on-tap="selectText"></paper-icon-button>
-      <paper-icon-button icon="icons:content-copy" title="Copy to clipboard"
-          on-tap="copyText"></paper-icon-button>
-    </div>
+        <paper-icon-button icon="icons:select-all" title="Select all"
+            on-tap="selectText"></paper-icon-button>
+        <paper-icon-button icon="icons:content-copy" title="Copy to clipboard"
+            on-tap="copyText"></paper-icon-button>
+      </div>
     </paper-toolbar>
     <pre id="out">[[markup]]</pre>
   </footer>
@@ -246,6 +256,10 @@
 
   t.getIconNames = function(iconset) {
     return iconset.getIconNames();
+  };
+
+  t.iconName = function(fullName) {
+    return fullName.split(':')[1];
   };
 
   t.toggleAllIcons = function() {
