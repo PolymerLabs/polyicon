@@ -14,7 +14,7 @@
   ],
   "dependencies": {
     "iron-icon": "PolymerElements/iron-icon#^1.0.7",
-    "iron-icons": "PolymerElements/iron-icons#^1.0.6",
+    "iron-icons": "PolymerElements/iron-icons#^1.1.0",
     "iron-meta": "PolymerElements/iron-meta#^1.1.1",
     "iron-selector": "PolymerElements/iron-selector#^1.0.8",
     "paper-header-panel": "PolymerElements/paper-header-panel#^1.1.2",
