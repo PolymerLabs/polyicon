@@ -198,17 +198,18 @@
   <iron-meta type="iconset" list="{{iconsets}}"></iron-meta>
 
   <paper-header-panel mode="waterfall">
-    <paper-toolbar class="top">
+    <paper-toolbar class="top" justify="justified">
       <h2><a href="/">Polymer Iconset Generator</a></h2>
       <!-- <paper-icon-button icon="icons:select-all" title="Toggle all icons"
           on-transitionend="toggleAllIcons"></paper-icon-button> -->
+      <paper-input no-label-float placeholder="Filter Icons" value="" on-value-changed="onFilterTermChanged"></paper-input>
     </paper-toolbar>
     <div>
       <iron-selector id="selector" multi attr-for-selected="data-icon">
         <template is="dom-repeat" items="[[iconsets]]" as="set">
           <!-- <h3 class="iconsetname" title$="[[set.name]]"></h3> -->
 
-          <template is="dom-repeat" items="[[getIconNames(set)]]">
+          <template is="dom-repeat" items="[[getIconNames(set, filterTerm)]]">
             <span class="container" on-click="generateMarkup" data-icon$="[[item]]">
               <iron-icon icon="[[item]]" title="[[item]]"></iron-icon>
               <div class="icon_name">{{iconName(item)}}</div>
@@ -284,8 +285,23 @@
 
   var t = document.querySelector('#t');
 
-  t.getIconNames = function(iconset) {
-    return iconset.getIconNames();
+  // Filter icon names by matching contained phrase.
+  t.getIconNames = function(iconset, filterTerm) {
+    if (filterTerm.length == 0) {
+      return iconset.getIconNames();
+    }
+
+    return iconset.getIconNames().filter(function(item) {
+      return item.indexOf(filterTerm) > -1;
+    });
+  };
+
+  t.filterTerm = '';
+
+  t.onFilterTermChanged = function(e) {
+    this.debounce('debounceFilter', function() {
+      this.filterTerm = e.detail.value;
+    }, 200);
   };
 
   t.iconName = function(fullName) {
